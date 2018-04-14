@@ -3,6 +3,14 @@
     <div class="game-panel" @click="touch">
       <div v-for="col in 1536" :key="col" class="col-item" :class="{'snake': isSnake(col), 'food': food == col}"></div>
     </div>
+    <div class="operation">
+      <div class="operation-item operation-top-down" @click="changeDirection('TOP')">上</div>
+      <div class="operation-left-right-col">
+        <div class="operation-item" @click="changeDirection('LEFT')">左</div>
+        <div class="operation-item" @click="changeDirection('RIGHT')">右</div>
+      </div>
+      <div class="operation-item operation-top-down" @click="changeDirection('DOWN')">下</div>
+    </div>
   </div>
 </template>
 
@@ -29,6 +37,9 @@ export default {
   methods: {
     isSnake (col) {
       return _.indexOf(this.snakeBody, col) > -1
+    },
+    changeDirection (direction) {
+      this.direction = direction
     },
     touch (event) {
       if (event.clientY < 168) {
@@ -103,6 +114,13 @@ export default {
 }
 </script>
 
+<style>
+body {
+  margin: 0;
+  margin-top: 8px; 
+}
+</style>
+
 <style scoped>
 .game-panel {
   position: relative;
@@ -126,5 +144,34 @@ export default {
 
 .food {
   background: red;
+}
+
+.operation {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.operation-left-right-col {
+  display: flex;
+  width: 100%;
+}
+
+.operation-item {
+  border: 1px solid;
+  width: 50%;
+}
+
+.operation-top-down {
+  width: 23px;
+  height: 35px;
+  line-height: 35px;
 }
 </style>
