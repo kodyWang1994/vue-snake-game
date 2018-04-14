@@ -1,6 +1,6 @@
 <template>
-  <div class="hello">
-    <div class="game-panel">
+  <div class="container">
+    <div class="game-panel" @click="touch">
       <div v-for="col in 1536" :key="col" class="col-item" :class="{'snake': isSnake(col), 'food': food == col}"></div>
     </div>
   </div>
@@ -29,6 +29,17 @@ export default {
   methods: {
     isSnake (col) {
       return _.indexOf(this.snakeBody, col) > -1
+    },
+    touch (event) {
+      if (event.clientY < 168) {
+        this.direction = 'TOP'
+      } else if (event.clientY > 328 && event.clientY < 488) {
+        this.direction = 'DOWN'
+      } else if (event.clientX > window.innerWidth / 2) {
+        this.direction = 'RIGHT'
+      } else if (event.clientX < window.innerWidth / 2) {
+        this.direction = 'LEFT'
+      }
     },
     move () {
       setInterval(() => {
@@ -99,6 +110,7 @@ export default {
   height: 480px;
   overflow: hidden;
   line-height: 0;
+  margin: auto;
 }
 
 .col-item {
