@@ -1,7 +1,10 @@
 <template>
   <div class="container">
     <div class="game-panel">
-      <div v-for="col in 1536" :key="col" class="col-item" :class="{'snake': isSnake(col), 'food': food == col}"></div>
+      <div v-for="col in 1536" :key="col" class="col-item" :class="{'snake': isSnake(col), 'food': food == col, 'snake-head': isHead(col)}"></div>
+    </div>
+    <div class="source-wrap">
+      得分： {{ snakeBody.length - 1 }}
     </div>
     <div class="operation">
       <div class="operation-item operation-top-down" @click="changeDirection('TOP')">上</div>
@@ -10,6 +13,11 @@
         <div class="operation-item" @click="changeDirection('RIGHT')">右</div>
       </div>
       <div class="operation-item operation-top-down" @click="changeDirection('DOWN')">下</div>
+    </div>
+    <div class="game-over" v-if="gameOver">
+      <span class="game-over-text">GAME OVER</span>
+      <br>
+      <span class="restart" @click="restart">重新开始</span>
     </div>
   </div>
 </template>
@@ -23,8 +31,13 @@ export default {
     return {
       snakeBody: [1],
       food: 0,
-      direction: 'RIGHT'
+      direction: 'RIGHT',
+      gameOver: false,
+      speed: 400
     }
+  },
+  watch: {
+    'snakeBody': 'checkRule'
   },
   created () {
     this.init()
@@ -35,8 +48,50 @@ export default {
     }
   },
   methods: {
+    checkRule () {
+      var uniqBady = _.uniq(this.snakeBody)
+      if (uniqBady.length !== this.snakeBody.length) {
+        this.stop()
+      } else {
+        switch (uniqBady.length) {
+          case 3:
+            this.changeSpeed(300)
+            break
+          case 6:
+            this.changeSpeed(200)
+            break
+          case 10:
+            this.changeSpeed(100)
+            break
+          case 20:
+            this.changeSpeed(50)
+            break
+          default:
+            break
+        }
+      }
+    },
+    changeSpeed (speed) {
+      clearInterval(this.intId)
+      this.speed = speed
+      this.move()
+    },
+    restart () {
+      this.snakeBody = [1]
+      this.direction = 'RIGHT'
+      this.gameOver = false
+      this.speed = 400
+      this.init()
+    },
+    stop () {
+      clearInterval(this.intId)
+      this.gameOver = true
+    },
     isSnake (col) {
       return _.indexOf(this.snakeBody, col) > -1
+    },
+    isHead (col) {
+      return _.last(this.snakeBody) === col
     },
     changeDirection (direction) {
       this.direction = direction
@@ -53,12 +108,12 @@ export default {
       }
     },
     move () {
-      setInterval(() => {
+      this.intId = setInterval(() => {
         const last = _.last(this.snakeBody)
         var newBody = []
         if (last === this.food) {
           newBody = this.snakeBody
-          this.food = this.random(1, 1536)
+          this.food = _.random(1, 1536)
         } else {
           newBody = _.rest(this.snakeBody)
         }
@@ -86,16 +141,9 @@ export default {
           }
         }
         this.snakeBody = newBody
-      }, 100)
-    },
-    random (min, max) {
-      var range = max - min
-      var rand = Math.random()
-      var num = min + Math.round(rand * range) // 四舍五入
-      return num
+      }, this.speed)
     },
     keyUp (event) {
-      // 左,上,右,下
       if (event.keyCode === 37) {
         this.direction = 'LEFT'
       } else if (event.keyCode === 38) {
@@ -107,7 +155,7 @@ export default {
       }
     },
     init () {
-      this.food = this.random(1, 1536)
+      this.food = _.random(1, 1536)
       this.move()
     }
   }
@@ -139,7 +187,11 @@ body {
 }
 
 .snake {
-  background: #000;
+  background: #1E90FF;
+}
+
+.snake-head {
+  background: rgb(123, 23, 134);
 }
 
 .food {
@@ -150,8 +202,8 @@ body {
   position: fixed;
   bottom: 30px;
   right: 30px;
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 190px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -162,16 +214,41 @@ body {
 .operation-left-right-col {
   display: flex;
   width: 100%;
+  height: 40px;
+  line-height: 40px;
 }
 
 .operation-item {
   border: 1px solid;
   width: 50%;
+  border-radius: 30px;
 }
 
 .operation-top-down {
-  width: 23px;
-  height: 35px;
-  line-height: 35px;
+  width: 40px;
+  height: 70px;
+  line-height: 70px;
+}
+
+.game-over {
+  position: fixed;
+  top: 190px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+.game-over-text {
+  font-size: 20px;
+}
+
+.restart {
+  font-size: 15px;
+  color: red;
+}
+
+.source-wrap {
+  padding-left: 50px;
 }
 </style>
