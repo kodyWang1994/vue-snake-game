@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="game-panel" @click="touch">
+    <div class="game-panel">
       <div v-for="col in 1536" :key="col" class="col-item" :class="{'snake': isSnake(col), 'food': food == col}"></div>
     </div>
     <div class="operation">
